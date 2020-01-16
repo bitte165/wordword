@@ -1,6 +1,7 @@
 import requests, json
 from datetime import datetime
-word_db = []
+global word_db = []
+global definitions = {}
 
 def getPOS(word):
     url = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/definitions"
@@ -17,14 +18,19 @@ def getPOS(word):
     if resp_stat == 200:
         json_data = response.text
         data = json.loads(json_data)
-
+        
         defs = data['definitions']
+        definitions[word] = defs
+        definitions.sort()
+        
         pos = [i['partOfSpeech'] for i in defs]
         pos = set(pos)
 
         return pos
+        
     elif resp_stat == 404:
         return "notaword"
+        
     else:
         print(resp_stat)
         raise Warning
@@ -67,6 +73,7 @@ def main():
 
     print("Writing to a dump JSON file...")
     name = 'JSON_output_database_' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H.%M.%S" + ".json")
+    
     with open(name, 'w+') as outfile:
         json.dump(word_db, outfile)
     print("Done! The name of your database is " + name)
