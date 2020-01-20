@@ -5,6 +5,36 @@ global word_db = []
 global definitions = {}
 
 
+def getPOS(word):
+    url = "https://wordsapiv1.p.rapidapi.com/words/" + word + "/definitions"
+
+    headers = {
+        'x-rapidapi-host': "wordsapiv1.p.rapidapi.com",
+        'x-rapidapi-key': "0c2910eee0mshd939f61fc8d5ab1p1532cfjsna210d387f491"
+    }
+
+    response = requests.request("GET", url, headers=headers)
+
+    resp_stat = response.status_code
+
+    if resp_stat == 200:
+        json_data = response.text
+        data = json.loads(json_data)
+
+        defs = data['definitions']
+        definitions[word] = defs
+        definitions.sort()
+
+        pos = set([i['partOfSpeech'] for i in defs])
+
+        return pos
+
+    elif resp_stat == 404:
+        return "notaword"
+
+    else:
+        print(resp_stat)
+        raise Warning
 
 
 def main():
@@ -51,3 +81,5 @@ def main():
     print("Done! The name of your database is " + name)
 
 
+if __name__ == "__main__":
+    main()
